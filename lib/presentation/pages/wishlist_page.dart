@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/widgets/add_to_cart_popup.dart';
 import '../controllers/cart_controller.dart';
 import '../controllers/catalog_controller.dart';
 import '../controllers/wishlist_controller.dart';
@@ -106,15 +107,22 @@ class WishlistPage extends StatelessWidget {
                             ),
                           );
                         },
-                        onToggleWishlist: () => wishlistController.toggleWishlist(product.id),
+                        onToggleWishlist: () {
+                          wishlistController.toggleWishlist(product.id);
+                          final nowWishlisted = wishlistController.isWishlisted(product.id);
+                          showWishlistPopup(
+                            context,
+                            productName: product.name,
+                            isWishlisted: nowWishlisted,
+                          );
+                        },
                         onAddToCart: () {
                           cartController.addToCart(product);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('${product.name} added to Cart!'),
-                              backgroundColor: const Color(0xFF10B981),
-                              behavior: SnackBarBehavior.floating,
-                            ),
+                          showAddToCartPopup(
+                            context,
+                            productName: product.name,
+                            imageUrl: product.imageUrl,
+                            price: product.price,
                           );
                         },
                       );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/widgets/add_to_cart_popup.dart';
 import '../../domain/entities/product_entity.dart';
 import '../controllers/cart_controller.dart';
 import '../controllers/catalog_controller.dart';
@@ -35,13 +36,15 @@ class _CatalogPageState extends State<CatalogPage> {
     final theme = Theme.of(context);
     final products = widget.catalogController.products;
 
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
-        // App Bar Header
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+    return SafeArea(
+      bottom: false,
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          // App Bar Header
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
             child: Row(
               children: [
                 Container(
@@ -223,10 +226,23 @@ class _CatalogPageState extends State<CatalogPage> {
                     product: product,
                     isWishlisted: isWishlisted,
                     onTap: () => _openProductDetail(context, product),
-                    onToggleWishlist: () => widget.wishlistController.toggleWishlist(product.id),
+                    onToggleWishlist: () {
+                      widget.wishlistController.toggleWishlist(product.id);
+                      final nowWishlisted = widget.wishlistController.isWishlisted(product.id);
+                      showWishlistPopup(
+                        context,
+                        productName: product.name,
+                        isWishlisted: nowWishlisted,
+                      );
+                    },
                     onAddToCart: () {
                       widget.cartController.addToCart(product);
-                      _showSnackBar(context, '${product.name} added to Cart!');
+                      showAddToCartPopup(
+                        context,
+                        productName: product.name,
+                        imageUrl: product.imageUrl,
+                        price: product.price,
+                      );
                     },
                   );
                 },
@@ -241,8 +257,9 @@ class _CatalogPageState extends State<CatalogPage> {
             ),
           ),
       ],
-    );
-  }
+    ),
+  );
+}
 
   void _openProductDetail(BuildContext context, ProductEntity product) {
     Navigator.of(context).push(
@@ -252,19 +269,6 @@ class _CatalogPageState extends State<CatalogPage> {
           cartController: widget.cartController,
           wishlistController: widget.wishlistController,
         ),
-      ),
-    );
-  }
-
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: const Color(0xFF10B981),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: const Duration(seconds: 2),
       ),
     );
   }
