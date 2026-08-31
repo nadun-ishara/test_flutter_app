@@ -78,20 +78,28 @@ class _CatalogPageState extends State<CatalogPage> {
                       ),
                     ),
                     Text(
-                      'Clean Architecture Mobile App',
+                      'Discover Luxury Collections',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.grey,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
                 const Spacer(),
-                IconButton(
-                  onPressed: widget.onToggleTheme,
-                  icon: Icon(
-                    widget.isDarkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                Container(
+                  decoration: BoxDecoration(
+                    color: (widget.isDarkMode ? Colors.white : Colors.black).withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
                   ),
-                  tooltip: 'Toggle Theme',
+                  child: IconButton(
+                    onPressed: widget.onToggleTheme,
+                    icon: Icon(
+                      widget.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                      color: widget.isDarkMode ? const Color(0xFFCFFF04) : theme.colorScheme.primary,
+                    ),
+                    tooltip: 'Toggle Theme',
+                  ),
                 ),
               ],
             ),
@@ -111,23 +119,69 @@ class _CatalogPageState extends State<CatalogPage> {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: TextField(
-              onChanged: (val) => widget.catalogController.updateSearchQuery(val),
-              decoration: InputDecoration(
-                hintText: 'Search products, specs, categories...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: widget.catalogController.searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () => widget.catalogController.updateSearchQuery(''),
-                      )
-                    : null,
-                filled: true,
-                fillColor: theme.cardColor.withValues(alpha: 0.8),
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 15,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: TextField(
+                onChanged: (val) => widget.catalogController.updateSearchQuery(val),
+                decoration: InputDecoration(
+                  hintText: 'Search products, specs, collections...',
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.catalogController.searchQuery.isNotEmpty)
+                        IconButton(
+                          icon: const Icon(Icons.clear_rounded),
+                          onPressed: () => widget.catalogController.updateSearchQuery(''),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.tune_rounded,
+                            size: 18,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  filled: true,
+                  fillColor: theme.cardColor.withValues(alpha: 0.85),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.15),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.12),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(
+                      color: theme.colorScheme.primary,
+                      width: 1.5,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -146,19 +200,62 @@ class _CatalogPageState extends State<CatalogPage> {
               itemBuilder: (context, index) {
                 final cat = widget.catalogController.categories[index];
                 final isSelected = widget.catalogController.selectedCategory == cat;
+
+                IconData categoryIcon;
+                switch (cat.toLowerCase()) {
+                  case 'electronics':
+                    categoryIcon = Icons.devices_rounded;
+                    break;
+                  case 'footwear':
+                  case 'shoes':
+                    categoryIcon = Icons.roller_skating_rounded;
+                    break;
+                  case 'accessories':
+                    categoryIcon = Icons.watch_rounded;
+                    break;
+                  case 'apparel':
+                  case 'clothing':
+                    categoryIcon = Icons.checkroom_rounded;
+                    break;
+                  default:
+                    categoryIcon = Icons.grid_view_rounded;
+                }
+
+                final isDark = theme.brightness == Brightness.dark;
+                const accentLime = Color(0xFFCFFF04);
+
                 return Padding(
                   padding: const EdgeInsets.only(right: 10),
-                  child: FilterChip(
-                    label: Text(cat),
-                    selected: isSelected,
-                    onSelected: (_) => widget.catalogController.selectCategory(cat),
-                    selectedColor: theme.colorScheme.primary.withValues(alpha: 0.25),
-                    checkmarkColor: theme.colorScheme.primary,
-                    labelStyle: TextStyle(
-                      color: isSelected
-                          ? theme.colorScheme.primary
-                          : theme.textTheme.bodyMedium?.color,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    child: FilterChip(
+                      avatar: Icon(
+                        categoryIcon,
+                        size: 16,
+                        color: isSelected
+                            ? (isDark ? Colors.black : Colors.white)
+                            : theme.colorScheme.primary,
+                      ),
+                      label: Text(cat),
+                      selected: isSelected,
+                      onSelected: (_) => widget.catalogController.selectCategory(cat),
+                      selectedColor: isDark ? accentLime : theme.colorScheme.primary,
+                      backgroundColor: theme.cardColor.withValues(alpha: 0.6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      side: BorderSide(
+                        color: isSelected
+                            ? Colors.transparent
+                            : Colors.white.withValues(alpha: 0.15),
+                      ),
+                      labelStyle: TextStyle(
+                        color: isSelected
+                            ? (isDark ? Colors.black : Colors.white)
+                            : theme.textTheme.bodyMedium?.color,
+                        fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 );
@@ -170,14 +267,14 @@ class _CatalogPageState extends State<CatalogPage> {
         // Count & Sort Option Bar
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   '${products.length} Products Found',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.bold,
                     color: Colors.grey,
                   ),
                 ),

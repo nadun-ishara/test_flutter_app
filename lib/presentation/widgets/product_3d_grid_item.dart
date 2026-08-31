@@ -22,6 +22,7 @@ class Product3DGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    const accentLime = Color(0xFFCFFF04);
 
     return GestureDetector(
       onTap: onTap,
@@ -31,14 +32,14 @@ class Product3DGridItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Image Header
+            // Top Image Header with Badges
             Expanded(
               child: Stack(
                 children: [
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: product.primaryColor3D.withValues(alpha: isDark ? 0.25 : 0.12),
+                      color: product.primaryColor3D.withValues(alpha: isDark ? 0.22 : 0.10),
                     ),
                     child: ClipRRect(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -68,34 +69,79 @@ class Product3DGridItem extends StatelessWidget {
                             colors: [theme.colorScheme.secondary, Colors.purpleAccent],
                           ),
                           borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.colorScheme.secondary.withValues(alpha: 0.4),
+                              blurRadius: 8,
+                            ),
+                          ],
                         ),
                         child: Text(
                           '-${product.discountPercentage}%',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
                       ),
                     ),
 
-                  // Wishlist Button
+                  // Wishlist Glowing Circle Button
                   Positioned(
                     top: 8,
                     right: 8,
-                    child: CircleAvatar(
-                      radius: 16,
-                      backgroundColor: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.75),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        icon: Icon(
-                          isWishlisted ? Icons.favorite : Icons.favorite_border,
-                          color: isWishlisted ? Colors.redAccent : Colors.grey,
-                          size: 18,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: onToggleWishlist,
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.75),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            isWishlisted ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                            color: isWishlisted ? const Color(0xFFFF4B6E) : Colors.grey,
+                            size: 18,
+                          ),
                         ),
-                        onPressed: onToggleWishlist,
+                      ),
+                    ),
+                  ),
+
+                  // Rating Badge Pill (Bottom Right of Image)
+                  Positioned(
+                    bottom: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.65),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.star_rounded, color: Colors.amber, size: 13),
+                          const SizedBox(width: 3),
+                          Text(
+                            '${product.rating}',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -118,30 +164,15 @@ class Product3DGridItem extends StatelessWidget {
                       letterSpacing: 1.0,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Text(
                     product.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 13,
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
-                      const SizedBox(width: 2),
-                      Text(
-                        '${product.rating}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '(${product.reviewCount})',
-                        style: const TextStyle(fontSize: 10, color: Colors.grey),
-                      ),
-                    ],
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -154,7 +185,7 @@ class Product3DGridItem extends StatelessWidget {
                             Text(
                               '\$${product.originalPrice!.toStringAsFixed(2)}',
                               style: const TextStyle(
-                                fontSize: 11,
+                                fontSize: 10,
                                 decoration: TextDecoration.lineThrough,
                                 color: Colors.grey,
                               ),
@@ -163,25 +194,42 @@ class Product3DGridItem extends StatelessWidget {
                             '\$${product.price.toStringAsFixed(2)}',
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w900,
-                              color: theme.colorScheme.primary,
+                              fontSize: 15,
+                              color: isDark ? accentLime : theme.colorScheme.primary,
                             ),
                           ),
                         ],
                       ),
-                      GestureDetector(
-                        onTap: onAddToCart,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [product.primaryColor3D, product.accentColor3D],
+
+                      // Add to Cart Interactive Neon Button
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: onAddToCart,
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.all(9),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  product.primaryColor3D,
+                                  product.accentColor3D,
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: product.primaryColor3D.withValues(alpha: 0.4),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
                             ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.add_shopping_cart_rounded,
-                            color: Colors.white,
-                            size: 18,
+                            child: const Icon(
+                              Icons.add_shopping_cart_rounded,
+                              color: Colors.white,
+                              size: 17,
+                            ),
                           ),
                         ),
                       ),
