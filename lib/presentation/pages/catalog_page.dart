@@ -47,15 +47,24 @@ class _CatalogPageState extends State<CatalogPage> {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset(
+                    'assets/icon/app_icon.png',
+                    width: 44,
+                    height: 44,
+                    fit: BoxFit.cover,
+                    errorBuilder: (ctx, err, stack) => Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 24),
                     ),
-                    borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 14),
                 Column(
