@@ -337,7 +337,9 @@ class _CartPageState extends State<CartPage> {
                         if (order != null) {
                           widget.cartController.clearCart();
                           if (ctx.mounted) Navigator.of(ctx).pop();
-                          widget.onOrderPlaced();
+                          if (context.mounted) {
+                            _showOrderSuccessDialog(context, order.id);
+                          }
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -358,6 +360,83 @@ class _CartPageState extends State<CartPage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showOrderSuccessDialog(BuildContext context, String orderId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: GlassmorphicCard(
+          borderRadius: 32,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFF10B981), width: 2),
+                ),
+                child: const Icon(
+                  Icons.task_alt_rounded,
+                  color: Color(0xFF10B981),
+                  size: 54,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Order Placed Successfully!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Order ID: $orderId',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFCFFF04),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Thank you for your purchase! We are preparing your order for fast delivery.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    widget.onOrderPlaced();
+                  },
+                  icon: const Icon(Icons.receipt_long),
+                  label: const Text('TRACK ORDER STATUS', style: TextStyle(fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

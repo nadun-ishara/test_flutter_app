@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/widgets/add_to_cart_popup.dart';
 import '../../core/widgets/glassmorphic_card.dart';
 import '../../core/widgets/particle_background.dart';
 import '../../domain/entities/product_entity.dart';
@@ -63,6 +64,12 @@ class _ProductDetail3DPageState extends State<ProductDetail3DPage> {
                         setState(() {
                           widget.wishlistController.toggleWishlist(widget.product.id);
                         });
+                        final nowWishlisted = widget.wishlistController.isWishlisted(widget.product.id);
+                        showWishlistPopup(
+                          context,
+                          productName: widget.product.name,
+                          isWishlisted: nowWishlisted,
+                        );
                       },
                     ),
                   ],
@@ -105,138 +112,148 @@ class _ProductDetail3DPageState extends State<ProductDetail3DPage> {
                   borderRadius: 32,
                   padding: const EdgeInsets.all(20),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Title & Price Header
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.product.category.toUpperCase(),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    color: widget.product.primaryColor3D,
-                                    letterSpacing: 1.2,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  widget.product.name,
-                                  style: theme.textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Title & Price Header
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          widget.product.category.toUpperCase(),
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w800,
+                                            color: widget.product.primaryColor3D,
+                                            letterSpacing: 1.2,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          widget.product.name,
+                                          style: theme.textTheme.titleLarge?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        '\$${widget.product.price.toStringAsFixed(2)}',
+                                        style: theme.textTheme.headlineSmall?.copyWith(
+                                          fontWeight: FontWeight.w900,
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                      ),
+                                      if (widget.product.hasDiscount)
+                                        Text(
+                                          '\$${widget.product.originalPrice!.toStringAsFixed(2)}',
+                                          style: const TextStyle(
+                                            decoration: TextDecoration.lineThrough,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 12),
+
+                              // Description
                               Text(
-                                '\$${widget.product.price.toStringAsFixed(2)}',
-                                style: theme.textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  color: theme.colorScheme.primary,
+                                widget.product.description,
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 13,
+                                  height: 1.4,
                                 ),
                               ),
-                              if (widget.product.hasDiscount)
-                                Text(
-                                  '\$${widget.product.originalPrice!.toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    decoration: TextDecoration.lineThrough,
-                                    color: Colors.grey,
+
+                              const SizedBox(height: 16),
+
+                              // Color Customizer Palette
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Color Accent:',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                   ),
-                                ),
+                                  const SizedBox(width: 12),
+                                  Row(
+                                    children: widget.product.availableColors.map((color) {
+                                      final isSelected = _selectedColor == color;
+                                      return GestureDetector(
+                                        onTap: () => setState(() => _selectedColor = color),
+                                        child: Container(
+                                          margin: const EdgeInsets.only(right: 8),
+                                          width: 28,
+                                          height: 28,
+                                          decoration: BoxDecoration(
+                                            color: color,
+                                            shape: BoxShape.circle,
+                                            border: isSelected
+                                                ? Border.all(color: Colors.white, width: 3)
+                                                : null,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 14),
+
+                              // Size Selector
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Size / Variant:',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        children: widget.product.availableSizes.map((size) {
+                                          final isSelected = _selectedSize == size;
+                                          return Padding(
+                                            padding: const EdgeInsets.only(right: 8),
+                                            child: ChoiceChip(
+                                              label: Text(size),
+                                              selected: isSelected,
+                                              onSelected: (_) => setState(() => _selectedSize = size),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
 
                       const SizedBox(height: 12),
 
-                      // Description
-                      Text(
-                        widget.product.description,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.grey, fontSize: 13, height: 1.4),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Color Customizer Palette
-                      Row(
-                        children: [
-                          const Text(
-                            'Color Accent:',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                          ),
-                          const SizedBox(width: 12),
-                          Row(
-                            children: widget.product.availableColors.map((color) {
-                              final isSelected = _selectedColor == color;
-                              return GestureDetector(
-                                onTap: () => setState(() => _selectedColor = color),
-                                child: Container(
-                                  margin: const EdgeInsets.only(right: 8),
-                                  width: 28,
-                                  height: 28,
-                                  decoration: BoxDecoration(
-                                    color: color,
-                                    shape: BoxShape.circle,
-                                    border: isSelected
-                                        ? Border.all(color: Colors.white, width: 3)
-                                        : null,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      // Size Selector
-                      Row(
-                        children: [
-                          const Text(
-                            'Size / Variant:',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: widget.product.availableSizes.map((size) {
-                                  final isSelected = _selectedSize == size;
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 8),
-                                    child: ChoiceChip(
-                                      label: Text(size),
-                                      selected: isSelected,
-                                      onSelected: (_) => setState(() => _selectedSize = size),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const Spacer(),
-
                       // Add to Cart Button
                       SizedBox(
                         width: double.infinity,
-                        height: 54,
+                        height: 52,
                         child: ElevatedButton.icon(
                           onPressed: () {
                             widget.cartController.addToCart(
@@ -244,12 +261,11 @@ class _ProductDetail3DPageState extends State<ProductDetail3DPage> {
                               color: _selectedColor,
                               size: _selectedSize,
                             );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('${widget.product.name} added to cart!'),
-                                backgroundColor: const Color(0xFF10B981),
-                                behavior: SnackBarBehavior.floating,
-                              ),
+                            showAddToCartPopup(
+                              context,
+                              productName: widget.product.name,
+                              imageUrl: widget.product.imageUrl,
+                              price: widget.product.price,
                             );
                           },
                           icon: const Icon(Icons.shopping_bag_outlined),
