@@ -70,12 +70,45 @@ class _CatalogPageState extends State<CatalogPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'NovaShop',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.5,
-                      ),
+                    Row(
+                      children: [
+                        ShaderMask(
+                          shaderCallback: (bounds) => LinearGradient(
+                            colors: widget.isDarkMode
+                                ? [const Color(0xFFCFFF04), const Color(0xFF00E5FF)]
+                                : [theme.colorScheme.primary, theme.colorScheme.secondary],
+                          ).createShader(bounds),
+                          child: Text(
+                            'NovaShop',
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: widget.isDarkMode
+                                  ? [const Color(0xFFCFFF04), const Color(0xFF00E5FF)]
+                                  : [theme.colorScheme.primary, theme.colorScheme.secondary],
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            'PREMIUM',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                              color: widget.isDarkMode ? Colors.black : Colors.white,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     Text(
                       'Discover Luxury Collections',
